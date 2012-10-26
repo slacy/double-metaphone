@@ -1,11 +1,11 @@
-DESCRIPTION
+Description
 ===========
 
   This module implements a "sounds like" algorithm developed by Lawrence Philips which he
   published in the June, 2000 issue of C/C++ Users Journal.  Double Metaphone is an improved
   version of Philips' original Metaphone algorithm.
 
-COPYRIGHT
+Copyright
 =========
   Copyright 2007, Stephen Lacy <slacy@slacy.com>
 
