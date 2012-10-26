@@ -1,6 +1,6 @@
-#include <vector> 
+#include <vector>
 #include <string>
-#include <string.h> 
+#include <string.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -9,14 +9,14 @@
 #include <assert.h>
 #include "double_metaphone.h"
 
-const unsigned int max_length = 32; 
+const unsigned int max_length = 32;
 
 void MakeUpper(string &s) {
   for (unsigned int i = 0; i < s.length(); i++) {
-    s[i] = toupper(s[i]); 
+    s[i] = toupper(s[i]);
   }
 }
-    
+
 int IsVowel(string &s, unsigned int pos)
 {
   char c;
@@ -25,8 +25,8 @@ int IsVowel(string &s, unsigned int pos)
     return 0;
 
   c = s[pos];
-  if ((c == 'A') || (c == 'E') || (c == 'I') || (c =='O') || 
-      (c =='U')  || (c == 'Y')) { 
+  if ((c == 'A') || (c == 'E') || (c == 'I') || (c =='O') ||
+      (c =='U')  || (c == 'Y')) {
     return 1;
   }
 
@@ -51,7 +51,7 @@ int SlavoGermanic(string &s)
 
 char GetAt(string &s, unsigned int pos)
 {
-  if ((pos < 0) || (pos >= s.length())) { 
+  if ((pos < 0) || (pos >= s.length())) {
     return '\0';
   }
 
@@ -61,16 +61,16 @@ char GetAt(string &s, unsigned int pos)
 
 void SetAt(string &s, unsigned int pos, char c)
 {
-  if ((pos < 0) || (pos >= s.length())) { 
+  if ((pos < 0) || (pos >= s.length())) {
     return;
   }
 
-  s[pos] = c; 
+  s[pos] = c;
 }
 
 
-/* 
-   Caveats: the START value is 0 based
+/*
+  Caveats: the START value is 0 based
 */
 int StringAt(string &s, unsigned int start, unsigned int length, ...)
 {
@@ -78,7 +78,7 @@ int StringAt(string &s, unsigned int start, unsigned int length, ...)
   const char *pos;
   va_list ap;
 
-  if ((start < 0) || (start >= s.length())) { 
+  if ((start < 0) || (start >= s.length())) {
     return 0;
   }
 
@@ -87,7 +87,7 @@ int StringAt(string &s, unsigned int start, unsigned int length, ...)
 
   do {
     test = va_arg(ap, char *);
-    if (*test && (strncmp(pos, test, length) == 0)) { 
+    if (*test && (strncmp(pos, test, length) == 0)) {
       return 1;
     }
   } while (strcmp(test, ""));
@@ -109,9 +109,9 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
 
   current = 0;
   /* we need the real length and last prior to padding */
-  length  = str.length(); 
-  last    = length - 1; 
-  original = str; // make a copy 
+  length  = str.length();
+  last    = length - 1;
+  original = str; // make a copy
   /* Pad original so we can index beyond end */
   original += "     ";
 
@@ -121,7 +121,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
   MakeUpper(original);
 
   /* skip these when at start of word */
-  if (StringAt(original, 0, 2, "GN", "KN", "PN", "WR", "PS", "")) { 
+  if (StringAt(original, 0, 2, "GN", "KN", "PN", "WR", "PS", "")) {
     current += 1;
   }
 
@@ -134,7 +134,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
 
   /* main loop */
   while ((primary.length() < max_length) || (secondary.length() < max_length)) {
-    if (current >= length) { 
+    if (current >= length) {
       break;
     }
 
@@ -148,15 +148,15 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       if (current == 0) {
         /* all init vowels now map to 'A' */
         primary += "A";
-        secondary += "A"; 
+        secondary += "A";
       }
       current += 1;
       break;
 
     case 'B':
       /* "-mb", e.g", "dumb", already skipped over... */
-      primary += "P"; 
-      secondary += "P"; 
+      primary += "P";
+      secondary += "P";
 
       if (GetAt(original, current + 1) == 'B')
         current += 2;
@@ -165,37 +165,37 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       break;
 
     case 'Ç':
-      primary += "S"; 
-      secondary += "S"; 
+      primary += "S";
+      secondary += "S";
       current += 1;
       break;
 
     case 'C':
       /* various germanic */
-      if ((current > 1) && 
-          !IsVowel(original, current - 2) && 
-          StringAt(original, (current - 1), 3, "ACH", "") && 
+      if ((current > 1) &&
+          !IsVowel(original, current - 2) &&
+          StringAt(original, (current - 1), 3, "ACH", "") &&
           ((GetAt(original, current + 2) != 'I') &&
            ((GetAt(original, current + 2) != 'E') ||
             StringAt(original, (current - 2), 6, "BACHER", "MACHER", "")))) {
-        primary += "K"; 
-        secondary += "K"; 
+        primary += "K";
+        secondary += "K";
         current += 2;
         break;
       }
 
       /* special case 'caesar' */
       if ((current == 0) && StringAt(original, current, 6, "CAESAR", "")) {
-        primary += "S"; 
-        secondary += "S"; 
+        primary += "S";
+        secondary += "S";
         current += 2;
         break;
       }
 
       /* italian 'chianti' */
       if (StringAt(original, current, 4, "CHIA", "")) {
-        primary += "K"; 
-        secondary += "K"; 
+        primary += "K";
+        secondary += "K";
         current += 2;
         break;
       }
@@ -224,15 +224,15 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
 
         /* germanic, greek, or otherwise 'ch' for 'kh' sound */
         if ((StringAt(original, 0, 4, "VAN ", "VON ", "") ||
-             StringAt(original, 0, 3, "SCH", "")) || 
+             StringAt(original, 0, 3, "SCH", "")) ||
             /*  'architect but not 'arch', 'orchestra', 'orchid' */
             StringAt(original, (current - 2), 6,
                      "ORCHES", "ARCHIT", "ORCHID", "") ||
             StringAt(original, (current + 2), 1,
-                     "T", "S", "") || 
+                     "T", "S", "") ||
             ((StringAt(original, (current - 1), 1,
                        "A", "O", "U", "E", "") ||
-              (current == 0)) && 
+              (current == 0)) &&
              /* e.g., 'wachtler', 'wechsler', but not 'tichner' */
              StringAt(original, (current + 2), 1, "L", "R",
                       "N", "M", "B", "H", "F", "V", "W", " ", ""))) {
@@ -257,7 +257,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
         break;
       }
       /* e.g, 'czerny' */
-      if (StringAt(original, current, 2, "CZ", "") && 
+      if (StringAt(original, current, 2, "CZ", "") &&
           !StringAt(original, (current - 2), 4, "WICZ", "")) {
         primary += "S";
         secondary += "X";
@@ -274,13 +274,13 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       }
 
       /* double 'C', but not if e.g. 'McClellan' */
-      if (StringAt(original, current, 2, "CC", "") && 
-          !((current == 1) && (GetAt(original, 0) == 'M')))
+      if (StringAt(original, current, 2, "CC", "") &&
+          !((current == 1) && (GetAt(original, 0) == 'M'))) {
         /* 'bellocchio' but not 'bacchus' */
-        if (StringAt(original, (current + 2), 1, "I", "E", "H", "") && 
+        if (StringAt(original, (current + 2), 1, "I", "E", "H", "") &&
             !StringAt(original, (current + 2), 2, "HU", "")) {
           /* 'accident', 'accede' 'succeed' */
-          if (((current == 1) && (GetAt(original, current - 1) == 'A')) || 
+          if (((current == 1) && (GetAt(original, current - 1) == 'A')) ||
               StringAt(original, (current - 1), 5, "UCCEE", "UCCES", "")) {
             primary += "KS";
             secondary += "KS";
@@ -291,12 +291,13 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
           }
           current += 3;
           break;
-        } else {	  /* Pierce's rule */
+        } else {  /* Pierce's rule */
           primary += "K";
           secondary += "K";
           current += 2;
           break;
         }
+      }
 
       if (StringAt(original, current, 2, "CK", "CG", "CQ", "")) {
         primary += "K";
@@ -326,7 +327,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       if (StringAt(original, (current + 1), 2, " C", " Q", " G", ""))
         current += 3;
       else
-        if (StringAt(original, (current + 1), 1, "C", "K", "Q", "") && 
+        if (StringAt(original, (current + 1), 1, "C", "K", "Q", "") &&
             !StringAt(original, (current + 1), 2, "CE", "CI", ""))
           current += 2;
         else
@@ -396,11 +397,11 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
           }
         }
         /* Parker's rule (with some further refinements) - e.g., 'hugh' */
-        if (((current > 1) && 
-             StringAt(original, (current - 2), 1, "B", "H", "D", "")) || 
+        if (((current > 1) &&
+             StringAt(original, (current - 2), 1, "B", "H", "D", "")) ||
             /* e.g., 'bough' */
-            ((current > 2) && 
-             StringAt(original, (current - 3), 1, "B", "H", "D", "")) || 
+            ((current > 2) &&
+             StringAt(original, (current - 3), 1, "B", "H", "D", "")) ||
             /* e.g., 'broughton' */
             ((current > 3) &&
              StringAt(original, (current - 4), 1, "B", "H", ""))) {
@@ -408,13 +409,13 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
           break;
         } else {
           /* e.g., 'laugh', 'McLaughlin', 'cough', 'gough', 'rough', 'tough' */
-          if ((current > 2) && 
-              (GetAt(original, current - 1) == 'U') && 
+          if ((current > 2) &&
+              (GetAt(original, current - 1) == 'U') &&
               StringAt(original, (current - 3), 1, "C",
                        "G", "L", "R", "T", "")) {
             primary += "F";
             secondary += "F";
-          } else if ((current > 0) && 
+          } else if ((current > 0) &&
                      GetAt(original, current - 1) != 'I') {
             primary += "K";
             secondary += "K";
@@ -456,8 +457,8 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       }
 
       /* -ges-,-gep-,-gel-, -gie- at beginning */
-      if ((current == 0) && 
-          ((GetAt(original, current + 1) == 'Y') || 
+      if ((current == 0) &&
+          ((GetAt(original, current + 1) == 'Y') ||
            StringAt(original, (current + 1), 2, "ES", "EP",
                     "EB", "EL", "EY", "IB", "IL", "IN", "IE",
                     "EI", "ER", ""))) {
@@ -468,10 +469,10 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       }
 
       /*  -ger-,  -gy- */
-      if ((StringAt(original, (current + 1), 2, "ER", "") || 
-           (GetAt(original, current + 1) == 'Y')) && 
-          !StringAt(original, 0, 6, "DANGER", "RANGER", "MANGER", "") && 
-          !StringAt(original, (current - 1), 1, "E", "I", "") && 
+      if ((StringAt(original, (current + 1), 2, "ER", "") ||
+           (GetAt(original, current + 1) == 'Y')) &&
+          !StringAt(original, 0, 6, "DANGER", "RANGER", "MANGER", "") &&
+          !StringAt(original, (current - 1), 1, "E", "I", "") &&
           !StringAt(original, (current - 1), 3, "RGY", "OGY", "")) {
         primary += "K";
         secondary += "J";
@@ -480,7 +481,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       }
 
       /*  italian e.g, 'biaggi' */
-      if (StringAt(original, (current + 1), 1, "E", "I", "Y", "") || 
+      if (StringAt(original, (current + 1), 1, "E", "I", "Y", "") ||
           StringAt(original, (current - 1), 4, "AGGI", "OGGI", "")) {
         /* obvious germanic */
         if ((StringAt(original, 0, 4, "VAN ", "VON ", "") ||
@@ -606,11 +607,11 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
     case 'M':
       if ((StringAt(original, (current - 1), 3, "UMB", "") &&
            (((current + 1) == last) ||
-            StringAt(original, (current + 2), 2, "ER", ""))) || 
+            StringAt(original, (current + 2), 2, "ER", ""))) ||
           /* 'dumb','thumb' */
-          (GetAt(original, current + 1) == 'M')) { 
+          (GetAt(original, current + 1) == 'M')) {
         current += 2;
-      } else { 
+      } else {
         current += 1;
       }
       primary += "M";
@@ -618,9 +619,9 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       break;
 
     case 'N':
-      if (GetAt(original, current + 1) == 'N') { 
+      if (GetAt(original, current + 1) == 'N') {
         current += 2;
-      } else { 
+      } else {
         current += 1;
       }
       primary += "N";
@@ -721,7 +722,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
         break;
       }
 
-      /* german & anglicisations, e.g. 'smith' match 'schmidt', 'snider' match 'schneider' 
+      /* german & anglicisations, e.g. 'smith' match 'schmidt', 'snider' match 'schneider'
          also, -sz- in slavic language altho in hungarian it is pronounced 's' */
       if (((current == 0) &&
            StringAt(original, (current + 1), 1, "M", "N", "L", "W", "")) ||
@@ -737,7 +738,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
 
       if (StringAt(original, current, 2, "SC", "")) {
         /* Schlesinger's rule */
-        if (GetAt(original, current + 2) == 'H')
+        if (GetAt(original, current + 2) == 'H') {
           /* dutch origin, e.g. 'school', 'schooner' */
           if (StringAt(original, (current + 3), 2,
                        "OO", "ER", "EN", "UY", "ED", "EM", "")) {
@@ -763,6 +764,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
             current += 3;
             break;
           }
+        }
 
         if (StringAt(original, (current + 2), 1, "I", "E", "Y", "")) {
           primary += "S";
@@ -824,9 +826,9 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
         break;
       }
 
-      if (StringAt(original, (current + 1), 1, "T", "D", "")) { 
+      if (StringAt(original, (current + 1), 1, "T", "D", "")) {
         current += 2;
-      } else { 
+      } else {
         current += 1;
       }
       primary += "T";
@@ -834,9 +836,9 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
       break;
 
     case 'V':
-      if (GetAt(original, current + 1) == 'V') { 
+      if (GetAt(original, current + 1) == 'V') {
         current += 2;
-      } else { 
+      } else {
         current += 1;
       }
       primary += "F";
@@ -897,7 +899,7 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
         primary += "KS";
         secondary += "KS";
       }
-                  
+
 
       if (StringAt(original, (current + 1), 1, "C", "X", ""))
         current += 2;
@@ -943,7 +945,6 @@ void DoubleMetaphone(const string &str, vector<string> *codes)
   if (secondary.length() > max_length)
     SetAt(secondary, max_length, '\0');
 
-  codes->push_back(primary); 
-  codes->push_back(secondary); 
+  codes->push_back(primary);
+  codes->push_back(secondary);
 }
-
