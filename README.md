@@ -25,6 +25,9 @@ Original Comments by Maurice Aubrey:
   This module is free software; you may redistribute it and/or
   modify it under the same terms as Perl itself.
 
+License
+=======
+
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
 
 This work is licensed under a
